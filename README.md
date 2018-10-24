@@ -484,13 +484,24 @@ Cross-Domain-Ajaxアップデートしないと使えなくなった。最新の
 SafariもしくはiOSだとhttps通信でないと位置情報を取得しない。（ブロックされる）
 他端末に関しては、
 
-、、、
+[参考][Using typescript](https://ionicframework.com/docs/api/navigation/NavController/)
+[参考][Using javascript](https://syncer.jp/how-to-use-geolocation-api)
 
 SafariもしくはiOSに関しては
 
 、、、
 
+#### デプロイ
 
+#### ビルド
+
+#### 何を作ったか
+
+東京のAEDを表示するマップ
+以下スクリーンショットイメージ
+
+![Home](hometab.png)
+![about](abouttab.png)
 
 
 #### 便利ツール
