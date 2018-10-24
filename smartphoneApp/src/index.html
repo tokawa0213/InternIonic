@@ -9,7 +9,7 @@
     /* Always set the map height explicitly to define the size of the div
      * element that contains the map. */
     #map {
-      height: 90%;
+      height: 85%;
     }
     /* Optional: Makes the sample page fill the window. */
     html, body {
@@ -20,6 +20,8 @@
   </style>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
   <script src="https://www.strobolights.tokyo/admin/article/20180728/jquery.xdomainajax.js"></script>
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDtWBXpjCFNqK_HdRP-eTYI0B2PjLJYEAM" async defer></script> 
+
   <meta name="viewport" content="viewport-fit=cover, width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="format-detection" content="telephone=no">
   <meta name="msapplication-tap-highlight" content="no">
@@ -68,6 +70,7 @@
       new_kyoten = [];
       new_lat_num = [];
       new_lng_num = [];
+        
       var wp_url_admin_ajax = 'http://okawa.local/wp-admin/admin-ajax.php';
       jQuery(function ($){
           $.ajax({
@@ -103,55 +106,75 @@
         }
       }
 
-      function pos_now(){
+      function pos_now(position){
+        return [position.coords.latitude,position.coords.longitude]
         // err if getvalue is not executed
-        if(new_kyoten.length > 0){
-          new_kyoten.unshift("ÁèæÂú®Âú∞");
-          new_lat_num.unshift(35.74046);
-          new_lng_num.unshift(139.40483);
-          initMap(new_lat_num,new_lng_num,new_kyoten)
-          new_kyoten.shift();
-          new_lat_num.shift();
-          new_lng_num.shift();
-        }else{
-          kyoten_temp = Array.from(kyoten)
-          kyoten_lat = Array.from(lat_num)
-          kyoten_lng = Array.from(lng_num)
-          kyoten_temp.unshift("ÁèæÂú®Âú∞");
-          kyoten_lat.unshift(35.74046);
-          kyoten_lng.unshift(139.40483);
-          initMap(kyoten_lat,kyoten_lng,kyoten_temp)
-        }
+        //if(new_kyoten.length > 0){
+          //new_kyoten.unshift("Now");
+          //new_lat_num.unshift(position.coords.latitude);
+          //new_lng_num.unshift(position.coords.longitude);
+          //initMap(new_lat_num,new_lng_num,new_kyoten)
+          //new_kyoten.shift();
+          //new_lat_num.shift();
+          //new_lng_num.shift();
+        //}else{
+          //kyoten_temp = Array.from(kyoten)
+          //kyoten_lat = Array.from(lat_num)
+          //kyoten_lng = Array.from(lng_num)
+          //kyoten_temp.unshift("Now");
+          //kyoten_lat.unshift(position.coords.longitude);
+          //kyoten_lng.unshift(position.coords.longitude);
+          //initMap(kyoten_lat,kyoten_lng,kyoten_temp)
+        //}
       }
 
       function getValue2(idname){
-        new_kyoten_2 = []
+        new_kyoten_2 = [];
+        new_lat_num_2 = [];
+        new_lng_num_2 = [];
         //value from about.html can be get
         place_name = document.getElementById(idname).value
-        console.log(place_name); 
-        //how do I return the value
-        console.log(kyoten);
         for (var i = 0;i<kyoten.length;i++) {
           if (kyoten[i].includes(place_name)){
             console.log(kyoten[i]);
             new_kyoten_2.push(kyoten[i]);
+            new_lat_num_2.push(lat_num[i]);
+            new_lng_num_2.push(lng_num[i]);
           }
         }
-        console.log(new_kyoten_2)
-        //returning value
-
+        new_kyoten_2 = [... new Set(new_kyoten_2)];
+        new_lat_num_2 = [... new Set(new_lat_num_2)];
+        new_lng_num_2 = [... new Set(new_lng_num_2)];
+        console.log(new_kyoten_2);
         if(new_kyoten_2.length > 30){
           loop_num = 30;
         }else{
           loop_num = new_kyoten_2.length;
         }
-        for (var i = 0;i<loop_num;i++) {
+        for (var i = 0;i<30;i++) {
           new_id = "id0" + String(i+1);
-          document.getElementById(new_id).innerHTML = new_kyoten_2[i];
+          if(i < new_kyoten_2.length){            
+            document.getElementById(new_id).innerHTML = '<a onclick="initMap([' + new_lat_num_2[i] + '],[' + new_lng_num_2[i] + '],[\'' + new_kyoten_2[i] + '\']);">' + new_kyoten_2[i] + "</a>"
+          }else{
+            document.getElementById(new_id).innerHTML = "";
+          }
         }
+        //move to another page tab
       }
+
       function initMap(lat_num,lng_num,kyoten) {
+        if( navigator.geolocation ){
+        // ¨F‘⁄Œª÷√§Ú»°µ√§«§≠§Îàˆ∫œ§ŒÑI¿Ì
+      }
+      // Geolocation API§ÀåùèÍ§∑§∆§§§ §§
+      else{
+      // ¨F‘⁄Œª÷√§Ú»°µ√§«§≠§ §§àˆ∫œ§ŒÑI¿Ì
+      alert("Positioning system not available") ;
+    }
+      npos = navigator.geolocation.getCurrentPosition(pos_now);
+      console.log(npos)
         var position_data = []
+        console.log(lat_num,lng_num,kyoten)
         for (var i = 0;i<lat_num.length;i++) {
           position_data.push({lat:Number(lat_num[i]), lng:Number(lng_num[i])});
         }
@@ -378,17 +401,17 @@
             map: map,
             animation: google.maps.Animation.DROP,
             icon: {
-              fillColor: "#FF0000",                //Â°ó„ÇäÊΩ∞„ÅóËâ≤
-              fillOpacity: 0.8,                    //Â°ó„ÇäÊΩ∞„ÅóÈÄèÈÅéÁéá
-              path: google.maps.SymbolPath.CIRCLE, //ÂÜÜ„ÇíÊåáÂÆö
-              scale: 16,                           //ÂÜÜ„ÅÆ„Çµ„Ç§„Ç∫
-              strokeColor: "#FF0000",              //Êû†„ÅÆËâ≤
-              strokeWeight: 1.0                    //Êû†„ÅÆÈÄèÈÅéÁéá
+              fillColor: "#FF0000",                //âT§Íù¢§∑…´
+              fillOpacity: 0.8,                    //âT§Íù¢§∑Õ∏ﬂ^¬ 
+              path: google.maps.SymbolPath.CIRCLE, //É“§Ú÷∏∂®
+              scale: 16,                           //É“§Œ•µ•§•∫
+              strokeColor: "#FF0000",              //ñò§Œ…´
+              strokeWeight: 1.0                    //ñò§ŒÕ∏ﬂ^¬ 
               },
             label: {
-              text: kyoten[i],                           //„É©„Éô„É´ÊñáÂ≠ó
-              color: '#FFFFFF',                    //ÊñáÂ≠ó„ÅÆËâ≤
-              fontSize: '20px'                     //ÊñáÂ≠ó„ÅÆ„Çµ„Ç§„Ç∫
+              text: kyoten[i],                           //•È•Ÿ•ÎŒƒ◊÷
+              color: '#FFFFFF',                    //Œƒ◊÷§Œ…´
+              fontSize: '20px'                     //Œƒ◊÷§Œ•µ•§•∫
               },
               name : "Hello"
           });
@@ -400,7 +423,6 @@
       
       }
     </script>
-    <script src="https://maps.googleapis.com/maps/api/js?key=&callback="
-    async defer></script>    
 </body>
 </html>
+

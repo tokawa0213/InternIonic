@@ -70,6 +70,11 @@ $ ionic cordova emulate ios --target "iPhone-7"
 ```
 $ ionic serve
 ```
+もしくは
+```
+$ ionic serve --lab
+```
+
 アプリで起動
 
 コンソールを起動したまま、同じWi-Fiに繋げる。
@@ -240,10 +245,69 @@ Styling wizardでデザインを作ってmapのstylesにJSONを貼り付ける�
 [参考][Google Maps APIs Styling Wizard を使って カスタマイズしたマップを使う ｜ Tips Note by TAM](https://www.tam-tam.co.jp/tipsnote/html_css/post14880.html)
 
 #### サーバー環境の構築
-
+[参考][[Vagrant based development environment for WordPress]](http://vccw.cc/)
 作成したアプリがデータベースと連携してデータを動的に変更できるようにする。WordPressが動くサーバーの構築を行う。
 
-TODO : (深く理解していないので後で書き足す)
+##### はじめに
+参考リンクを参考に
+```
+vagrant up
+```
+でブラウザ上からVagrantにアクセス可能な状態に。
+
+##### 詳細設定（任意）
+```
+cp provision/default.yml site.yml
+```
+サイトの詳細設定を行うため、provision/default.ymlをvccwにコピーしsite.ymlに名前を変更する。
+```
+hostname: vccw.dev
+```
+を
+```
+hostname: {your_name}.local
+```
+に変更。(これによりyour_name.localでサイトにアクセス可能に)
+
+
+IPアドレスの取得を仮想マシン自動に行うため
+```
+config.vm.hostname = _conf['hostname']
+config.vm.network :private_network, ip: _conf['ip']
+```
+
+を
+
+```
+config.vm.hostname = _conf['hostname']
+  config.vm.network :public_network, type: 'dhcp', bridge: 'en1: Wi-Fi (AirPort)'
+
+  config.hostmanager.enabled = true
+  config.hostmanager.manage_host = true
+  config.hostmanager.ip_resolver = proc do |vm, resolving_vm|
+    ip_address = ''
+    if hostname = (vm.ssh_info && vm.ssh_info[:host])
+      vm.communicate.execute("/sbin/ifconfig enp0s8 | grep 'inet addr' | tail -n 1 | egrep -o '[0-9\.]+' | head -n 1 2>&1") do |type, contents|
+        ip_address = contents.split("\n").first
+      end
+    end
+    ip_address
+  end
+```
+
+に、変更。
+
+##### 注意点
+
+仮想マシンの電源を落としておかないと次回起動した際にエラーになることがある。
+なので、終わるときは
+
+```
+vagrant halt
+```
+
+でマシンを落としておく事。
+それでも、エラーが出る場合はVirtualBoxを起動して手動でマシンの削除を行うと良い。
 
 #### WordPressのカスタマイズ
 
@@ -311,10 +375,6 @@ plugins -> add new -> "custom field template"
     }
 ?>
 ```
-
-##### コード説明
-
-TODO: 時間があれば追記
 
 http://{hostname}/wp-admin/{script_name}にアクセスしてスクリプトを実行。
 (データが大きすぎると読み込んでいる途中でエラーになるので注意)
@@ -418,6 +478,21 @@ Cross-Domain-Ajaxアップデートしないと使えなくなった。最新の
   });
 </script>
 ```
+
+#### 現在地の表示
+
+SafariもしくはiOSだとhttps通信でないと位置情報を取得しない。（ブロックされる）
+他端末に関しては、
+
+、、、
+
+SafariもしくはiOSに関しては
+
+、、、
+
+
+
+
 #### 便利ツール
 
 https://dashboard.ionicframework.com/welcome
